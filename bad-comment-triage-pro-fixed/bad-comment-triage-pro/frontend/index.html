@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Public Comment Triage Pro</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <div>
+        <div class="eyebrow">PUBLIC COMMENT TRIAGE · PRO</div>
+        <h1>공개 악성 댓글을 찾고,<br><span>검토 우선순위를 설명합니다.</span></h1>
+        <p>대상 이름과 별칭을 기준으로 공식 API와 공개 웹 검색을 수집하고, 중복 제거 후 투명한 규칙 기반 신호로 1차 분류합니다.</p>
+      </div>
+      <aside class="notice">법률 판단기가 아닙니다. 결과는 증거 정리와 변호사·수사기관 검토 전의 <strong>1차 분류</strong>입니다.</aside>
+    </header>
+
+    <section class="panel provider-panel">
+      <div class="section-head">
+        <div>
+          <div class="kicker">01 · DATA SOURCES</div>
+          <h2>수집기 상태</h2>
+        </div>
+        <button id="refreshProviders" class="ghost">상태 새로고침</button>
+      </div>
+      <div id="providerCards" class="provider-grid"></div>
+      <p class="muted">키는 브라우저가 아니라 서버의 <code>.env</code>에만 저장됩니다. 설정되지 않은 수집기는 실행 전에 명확하게 차단됩니다.</p>
+    </section>
+
+    <section class="panel">
+      <div class="section-head">
+        <div>
+          <div class="kicker">02 · SEARCH</div>
+          <h2>새 수집 작업</h2>
+        </div>
+        <div class="badge">비동기 작업 · PostgreSQL 저장</div>
+      </div>
+
+      <form id="searchForm">
+        <div class="grid2">
+          <label>대상 이름 또는 검색어
+            <input id="target" required maxlength="200" placeholder="예: 홍길동" />
+          </label>
+          <label>별칭·닉네임
+            <input id="aliases" placeholder="예: 길동이, Gildong (쉼표로 구분)" />
+          </label>
+        </div>
+        <label>추가 키워드 <span class="hint">비워두면 기본 악성 표현 검색어를 자동 확장합니다.</span>
+          <input id="keywords" placeholder="예: 학폭, 사기, 욕설" />
+        </label>
+
+        <div class="search-options">
+          <div>
+            <div class="label-like">사용할 수집기</div>
+            <div id="providerChecks" class="checks"></div>
+          </div>
+          <label class="limit">최대 저장
+            <select id="limit">
+              <option value="100">100개</option>
+              <option value="200" selected>200개</option>
+              <option value="500">500개</option>
+              <option value="1000">1000개</option>
+            </select>
+          </label>
+          <button class="primary" type="submit">수집 시작</button>
+        </div>
+      </form>
+      <div id="formError" class="error hidden"></div>
+    </section>
+
+    <section id="jobPanel" class="panel hidden">
+      <div class="section-head">
+        <div>
+          <div class="kicker">03 · PIPELINE</div>
+          <h2>수집 진행 상황</h2>
+        </div>
+        <div id="jobStatus" class="status-pill">QUEUED</div>
+      </div>
+      <div class="progress-track"><div id="progressBar" class="progress-bar"></div></div>
+      <div id="progressText" class="progress-text"></div>
+      <div id="diagnostics" class="diagnostics"></div>
+      <div id="jobError" class="error hidden"></div>
+    </section>
+
+    <section id="resultsPanel" class="panel hidden">
+      <div class="section-head result-head">
+        <div>
+          <div class="kicker">04 · TRIAGE</div>
+          <h2>분석 결과</h2>
+        </div>
+        <a id="csvLink" class="ghost button-link" href="#">CSV 내보내기</a>
+      </div>
+      <div id="counts" class="count-grid"></div>
+      <div class="filter-row">
+        <button class="filter active" data-band="">전체</button>
+        <button class="filter" data-band="review_first">검토 우선</button>
+        <button class="filter" data-band="context_needed">맥락 필요</button>
+        <button class="filter" data-band="low_priority">낮은 우선순위</button>
+      </div>
+      <div id="results" class="results"></div>
+    </section>
+
+    <section class="panel manual-panel">
+      <div class="section-head">
+        <div>
+          <div class="kicker">05 · MANUAL TEST</div>
+          <h2>문장 하나를 바로 분석</h2>
+        </div>
+      </div>
+      <div class="grid2">
+        <label>대상 이름
+          <input id="manualTarget" placeholder="예: 홍길동" />
+        </label>
+        <label>문맥 <span class="hint">선택</span>
+          <input id="manualContext" placeholder="예: 홍길동 인터뷰 영상 댓글" />
+        </label>
+      </div>
+      <label>검토할 문장
+        <textarea id="manualText" rows="4" placeholder="댓글 또는 게시글 문장을 붙여넣으세요."></textarea>
+      </label>
+      <div class="manual-actions"><button id="manualBtn" class="secondary">분석</button></div>
+      <div id="manualResult" class="manual-result hidden"></div>
+    </section>
+
+    <footer>
+      공개적으로 접근 가능한 자료만 다루며, 로그인 우회·비공개 자료 접근·작성자 신원 추적 기능은 포함하지 않습니다.
+    </footer>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>
